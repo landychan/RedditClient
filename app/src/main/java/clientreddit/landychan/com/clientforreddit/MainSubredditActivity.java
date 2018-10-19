@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -14,7 +16,8 @@ import butterknife.ButterKnife;
 public class MainSubredditActivity extends AppCompatActivity {
 
     private TextView mTextMessage;
-    @BindView(R.id.recyclerview_subreddit) RecyclerView recyclerView;
+    @BindView(R.id.recyclerview_subreddit)
+    RecyclerView recyclerView;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -46,6 +49,17 @@ public class MainSubredditActivity extends AppCompatActivity {
         mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+
+//        RedditRestClient.getOauthToken();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        MenuInflater menuInflater = new MenuInflater(this);
+        menuInflater.inflate(R.menu.mainmenu, menu);
+
+        return true;
+    }
 }

@@ -1,4 +1,4 @@
-package clientreddit.landychan.com.clientforreddit;
+package chan.landy.redditclient;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("clientreddit.landychan.com.clientforreddit", appContext.getPackageName());
+        assertEquals("chan.landy.redditclient", appContext.getPackageName());
     }
 }

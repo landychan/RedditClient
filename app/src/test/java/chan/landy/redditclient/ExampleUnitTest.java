@@ -1,4 +1,4 @@
-package clientreddit.landychan.com.clientforreddit;
+package chan.landy.redditclient;
 
 import org.junit.Test;
 

@@ -15,8 +15,6 @@ import net.dean.jraw.oauth.AccountHelper;
 
 import java.util.UUID;
 
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
 
 public final class App extends Application {
     private static AccountHelper accountHelper;

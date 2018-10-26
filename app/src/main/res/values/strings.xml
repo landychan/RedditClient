@@ -13,4 +13,8 @@
     <string name="no_stored_data">There\'s nothing here ¯\\_(ツ)_/¯</string>
     <string name="new_user">New user</string>
     <string name="access_token_expired">Access token expired</string>
+    <string name="title_activity_subreddits">SubredditsActivity</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
 </resources>

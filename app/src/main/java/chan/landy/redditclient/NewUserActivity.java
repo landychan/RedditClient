@@ -13,6 +13,7 @@ import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import net.dean.jraw.RedditClient;
 import net.dean.jraw.oauth.OAuthException;
 import net.dean.jraw.oauth.StatefulAuthHelper;
 
@@ -99,7 +100,7 @@ public class NewUserActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(String... urls) {
             try {
-                helper.onUserChallenge(urls[0]);
+                App.redditClient = helper.onUserChallenge(urls[0]);
                 return true;
             } catch (OAuthException e) {
                 // Report failure if an OAuthException occurs

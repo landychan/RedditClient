@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * The main activity is a list of all stored authentication data. This data is provided from
  * App.getTokenStore(). When an item in the list is clicked, we attempt to authenticate ourselves as
@@ -32,16 +35,17 @@ import java.util.TreeMap;
 public class MainActivity extends AppCompatActivity {
     private static final int REQ_CODE_LOGIN = 0;
 
-    private RecyclerView storedDataList;
+    @BindView(R.id.storedDataList) RecyclerView storedDataList;
     private AuthDataAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
         // Create the RecyclerView's LayoutManager and Adapter
-        this.storedDataList = findViewById(R.id.storedDataList);
+//        this.storedDataList = findViewById(R.id.storedDataList);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         this.adapter = new AuthDataAdapter(this, storedDataList, App.getTokenStore());
 
@@ -160,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(String... usernames) {
-            App.getAccountHelper().switchToUser(usernames[0]);
+            App.redditClient = App.getAccountHelper().switchToUser(usernames[0]);
             return null;
         }
 
@@ -169,7 +173,8 @@ public class MainActivity extends AppCompatActivity {
             Activity activity = this.activity.get();
 
             if (activity != null) {
-                activity.startActivity(new Intent(activity, UserOverviewActivity.class));
+//                activity.startActivity(new Intent(activity, UserOverviewActivity.class));
+                activity.startActivity(new Intent(activity, SubredditsActivity.class));
             }
         }
     }

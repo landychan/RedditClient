@@ -19,6 +19,7 @@ import java.util.UUID;
 public final class App extends Application {
     private static AccountHelper accountHelper;
     private static SharedPreferencesTokenStore tokenStore;
+    public static RedditClient redditClient;
 
     @Override
     public void onCreate() {

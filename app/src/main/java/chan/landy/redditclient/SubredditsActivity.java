@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -65,7 +68,19 @@ public class SubredditsActivity extends AppCompatActivity {
         DividerItemDecoration itemDecor = new DividerItemDecoration(getApplicationContext(), HORIZONTAL);
         subredditRecyclerView.addItemDecoration(itemDecor);
 
+        subredditRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (!recyclerView.canScrollVertically(1)) {
+                    loadSubreddit();
+                }
+            }
+        });
+
         loadSubreddit();
+
     }
 
     public void loadSubreddit() {
@@ -86,12 +101,18 @@ public class SubredditsActivity extends AppCompatActivity {
             this.submissions = submissionsList;
         }
 
+        @NonNull
         @Override
         public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType){
             // infalte the item Layout
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_postviewholder, parent, false);
             // set the view's size, margins, paddings and layout parameters
-            return new PostViewHolder(v);
+            PostViewHolder postViewHolder = new PostViewHolder(v);
+            postViewHolder.postThumbnail.setOnClickListener(v1 -> {
+
+//                Picasso.get().load()
+            });
+            return postViewHolder;
         }
 
         @Override
@@ -101,6 +122,21 @@ public class SubredditsActivity extends AppCompatActivity {
 
             postViewHolder.postTitle.setText(submission.getTitle());
             postViewHolder.postSubreddit.setText(submission.getSubreddit());
+
+            if(submission.hasThumbnail()) {
+                postViewHolder.loadThumbnail(submission.getThumbnail());
+            } else {
+                postViewHolder.postThumbnail.setVisibility(View.GONE);
+            }
+
+
+            postViewHolder.imageUri = submission.getUrl();
+            postViewHolder.postThumbnail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
 
         }
 
@@ -116,11 +152,23 @@ public class SubredditsActivity extends AppCompatActivity {
 
         @BindView(R.id.post_title) TextView postTitle;
         @BindView(R.id.post_subreddit) TextView postSubreddit;
+        @BindView(R.id.post_thumbnail) AppCompatImageView postThumbnail;
+        String imageUri;
 
         public PostViewHolder(View itemView) {
             super(itemView);
 
             ButterKnife.bind(this, itemView);
+
+        }
+
+        private void loadThumbnail(String url) {
+            Picasso.get()
+                    .load(url)
+//                .placeholder(R.drawable.user_placeholder)
+//                .error(R.drawable.user_placeholder_error)
+                    .into(this.postThumbnail);
+
         }
     }
 

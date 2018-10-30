@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.DividerItemDecoration;
@@ -29,6 +30,7 @@ import static android.graphics.drawable.ClipDrawable.HORIZONTAL;
 
 public class SubredditsActivity extends AppCompatActivity {
 
+    @BindView (R.id.subreddit_swipelayout) SwipeRefreshLayout subredditSwipeLayout;
     @BindView (R.id.subreddit_recyclerview) RecyclerView subredditRecyclerView;
     SubredditViewAdapter subredditAdapter;
     ArrayList<Submission> submissionsList;
@@ -55,9 +57,7 @@ public class SubredditsActivity extends AppCompatActivity {
 
         submissionsList = new ArrayList<>();
 
-        DefaultPaginator.Builder<Submission, SubredditSort> paginatorBuilder = App.redditClient.frontPage();
-        subredditPaginator = paginatorBuilder.build();
-
+        buildSubredditPaginator("");
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
@@ -73,23 +73,41 @@ public class SubredditsActivity extends AppCompatActivity {
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
 
+                // Load more posts if the user scrolled to the end of the recyclerview
                 if (!recyclerView.canScrollVertically(1)) {
                     loadSubreddit();
                 }
             }
         });
 
+        subredditSwipeLayout.setOnRefreshListener(() -> {
+            submissionsList.clear();
+            buildSubredditPaginator("");
+            loadSubreddit();
+            subredditSwipeLayout.setRefreshing(false);
+        });
+
         loadSubreddit();
+
+    }
+
+    private void buildSubredditPaginator(String subreddit) {
+        DefaultPaginator.Builder<Submission, SubredditSort> paginatorBuilder;
+        if(subreddit.length() == 0) {
+            paginatorBuilder = App.redditClient.frontPage();
+        } else {
+            paginatorBuilder = App.redditClient.subreddit(subreddit).posts().limit(50);
+        }
+
+        subredditPaginator = paginatorBuilder.build();
+
+//        SubredditsActivity.this.setTitle();
 
     }
 
     public void loadSubreddit() {
 
         new LoadSubredditTask().execute("", "", "");
-
-
-//        submissionsList.addAll(subredditPaginator.next());
-//        subredditAdapter.notifyDataSetChanged();
     }
 
 
@@ -183,8 +201,7 @@ public class SubredditsActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
 
-            if(submissionsList != null) {
-//                activity.startActivity(new Intent(activity, UserOverviewActivity.class));
+            if(submissionsList.size() > 0) {
                 SubredditsActivity.this.subredditAdapter.notifyDataSetChanged();
             }
         }

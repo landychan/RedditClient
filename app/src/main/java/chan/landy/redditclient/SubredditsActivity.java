@@ -145,7 +145,7 @@ public class SubredditsActivity extends AppCompatActivity {
                     case "link":
                         // open webview
                         break;
-                    case "photo":
+                    case "image":
                         zoomImageFromThumb(postViewHolder.postThumbnail, postViewHolder.imageUri);
                         break;
                     default:

@@ -35,7 +35,8 @@
         <activity android:name=".UserOverviewActivity" />
         <activity
             android:name=".SubredditsActivity"
-            android:label="@string/title_activity_subreddits"></activity>
+            android:label="@string/title_activity_subreddits" />
+        <activity android:name=".WebViewActivity" />
     </application>
 
 </manifest>

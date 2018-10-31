@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.content.Intent;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.AsyncTask;
@@ -16,6 +17,7 @@ import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +40,7 @@ import static android.graphics.drawable.ClipDrawable.HORIZONTAL;
 
 public class SubredditsActivity extends AppCompatActivity {
 
+    final String TAG = "SubredditsActivity";
     @BindView (R.id.expanded_image) ImageView expandedImageView;
     @BindView (R.id.subreddit_swipelayout) SwipeRefreshLayout subredditSwipeLayout;
     @BindView (R.id.subreddit_recyclerview) RecyclerView subredditRecyclerView;
@@ -144,9 +147,12 @@ public class SubredditsActivity extends AppCompatActivity {
                 switch(postViewHolder.postHint) {
                     case "link":
                         // open webview
+                        Intent intent = new Intent(SubredditsActivity.this, WebViewActivity.class);
+                        intent.putExtra("postlink",postViewHolder.dataUrl);
+                        startActivity(intent);
                         break;
                     case "image":
-                        zoomImageFromThumb(postViewHolder.postThumbnail, postViewHolder.imageUri);
+                        zoomImageFromThumb(postViewHolder.postThumbnail, postViewHolder.dataUrl);
                         break;
                     default:
                         // go to comments?
@@ -164,11 +170,12 @@ public class SubredditsActivity extends AppCompatActivity {
 
             postViewHolder.postTitle.setText(submission.getTitle());
             postViewHolder.postSubreddit.setText(submission.getSubreddit());
-            postViewHolder.imageUri = submission.getUrl();
+            postViewHolder.dataUrl = submission.getUrl();
 
             String linkFlair = submission.getLinkFlairText();
 //            postViewHolder.postUpvotes = submission.getVote();
             postViewHolder.postHint = submission.getPostHint();
+            Log.d(TAG, postViewHolder.postHint);
 
             if(submission.hasThumbnail()) {
                 postViewHolder.loadThumbnail(submission.getThumbnail());
@@ -331,7 +338,7 @@ public class SubredditsActivity extends AppCompatActivity {
         @BindView(R.id.post_upvotes) TextView postUpvotes;
 //        @BindView(R.id.post_flair) TextView postFlair;
         @BindView(R.id.post_thumbnail) AppCompatImageView postThumbnail;
-        String imageUri;
+        String dataUrl;
         String postHint;
 
         public PostViewHolder(View itemView) {

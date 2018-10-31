@@ -1,6 +1,8 @@
 package chan.landy.redditclient;
 
 import android.app.Application;
+import android.content.Context;
+import android.support.multidex.MultiDex;
 import android.util.Log;
 
 import net.dean.jraw.RedditClient;
@@ -24,6 +26,7 @@ public final class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
 
         // Get UserAgent and OAuth2 data from AndroidManifest.xml
         AppInfoProvider provider = new ManifestAppInfoProvider(getApplicationContext());
@@ -58,6 +61,12 @@ public final class App extends Application {
 
             return null;
         });
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(base);
     }
 
     public static AccountHelper getAccountHelper() { return accountHelper; }

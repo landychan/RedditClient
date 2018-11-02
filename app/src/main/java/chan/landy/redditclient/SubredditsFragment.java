@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -12,15 +13,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
-import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,7 +50,8 @@ public class SubredditsFragment extends Fragment {
     @BindView (R.id.subreddit_swipelayout) SwipeRefreshLayout subredditSwipeLayout;
     @BindView (R.id.subreddit_recyclerview) RecyclerView subredditRecyclerView;
     SubredditViewAdapter subredditAdapter;
-    ArrayList<Submission> submissionsList;
+//    ArrayList<Submission> submissionsList;
+    private SubredditDataViewModel mSubredditViewModel;
     private DefaultPaginator<Submission> mSubredditPaginator;
     private Animator mCurrentAnimator;
     private int mShortAnimationDuration;
@@ -58,22 +59,27 @@ public class SubredditsFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.d(TAG, "onCreate");
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
+        Log.d(TAG, "onCreateView");
         View view = inflater.inflate(R.layout.fragment_subreddits, container, false);
         ButterKnife.bind(this, view);
 
-        submissionsList = new ArrayList<>();
+//        submissionsList = new ArrayList<>();
 
+
+        mSubredditViewModel = ViewModelProviders.of(this).get(SubredditDataViewModel.class);
         buildSubredditPaginator("");
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         subredditRecyclerView.setLayoutManager(layoutManager);
-        subredditAdapter = new SubredditViewAdapter(submissionsList);
+        subredditAdapter = new SubredditViewAdapter(mSubredditViewModel.submissionsList);
         subredditRecyclerView.setAdapter(subredditAdapter);
         DividerItemDecoration itemDecor = new DividerItemDecoration(getContext(), HORIZONTAL);
         subredditRecyclerView.addItemDecoration(itemDecor);
@@ -91,13 +97,17 @@ public class SubredditsFragment extends Fragment {
         });
 
         subredditSwipeLayout.setOnRefreshListener(() -> {
-            submissionsList.clear();
-            buildSubredditPaginator("");
-            loadSubreddit();
-            subredditSwipeLayout.setRefreshing(false);
+            if(!subredditSwipeLayout.isRefreshing()) {
+                mSubredditViewModel.submissionsList.clear();
+//                submissionsList.clear();
+                buildSubredditPaginator("");
+                loadSubreddit();
+            }
         });
 
-        loadSubreddit();
+        if(mSubredditViewModel.submissionsList.size() == 0) {
+            loadSubreddit();
+        }
 
         // Retrieve and cache the system's default "short" animation time.
         mShortAnimationDuration = getResources().getInteger(
@@ -117,12 +127,11 @@ public class SubredditsFragment extends Fragment {
 
         mSubredditPaginator = paginatorBuilder.build();
 
-//        SubredditsActivity.this.setTitle();
-
     }
 
     public void loadSubreddit() {
 
+        subredditSwipeLayout.setRefreshing(true);
         new LoadSubredditTask().execute("", "", "");
     }
 
@@ -132,7 +141,7 @@ public class SubredditsFragment extends Fragment {
         ArrayList<Submission> submissions;
 
         public SubredditViewAdapter(ArrayList<Submission> submissionsList) {
-            this.submissions = submissionsList;
+            this.submissions = mSubredditViewModel.submissionsList; // submissionsList;
         }
 
         @NonNull
@@ -169,7 +178,7 @@ public class SubredditsFragment extends Fragment {
             postViewHolder.postLayout.setOnClickListener(v12 -> {
                 CommentsFragment commentsFragment = new CommentsFragment();
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(R.id.subreddit_fragment_container, commentsFragment);
+                ft.replace(R.id.fragment_container, commentsFragment);
                 ft.addToBackStack(null);
                 ft.commit();
             });
@@ -181,13 +190,16 @@ public class SubredditsFragment extends Fragment {
 
             Submission submission = submissions.get(i);
 
-            postViewHolder.postTitle.setText(submission.getTitle());
+            String postTitle = String.format("%s (%s)", submission.getTitle(), submission.getDomain());
+
+            postViewHolder.postTitle.setText(postTitle);
             postViewHolder.postSubreddit.setText(submission.getSubreddit());
             postViewHolder.dataUrl = submission.getUrl();
 
             String linkFlair = submission.getLinkFlairText();
 //            postViewHolder.postUpvotes = submission.getVote();
             postViewHolder.postHint = submission.getPostHint();
+            Log.d("Domain", submission.getDomain());
 
             if(submission.hasThumbnail()) {
                 postViewHolder.loadThumbnail(submission.getThumbnail());
@@ -207,10 +219,8 @@ public class SubredditsFragment extends Fragment {
 
     class PostViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.post_layout)
-        RelativeLayout postLayout;
-        @BindView(R.id.post_title)
-        TextView postTitle;
+        @BindView(R.id.post_layout) RelativeLayout postLayout;
+        @BindView(R.id.post_title) TextView postTitle;
         @BindView(R.id.post_subreddit) TextView postSubreddit;
         @BindView(R.id.post_upvotes) TextView postUpvotes;
         //        @BindView(R.id.post_flair) TextView postFlair;
@@ -238,14 +248,17 @@ public class SubredditsFragment extends Fragment {
 
         @Override
         protected String doInBackground(String ...param) {
-            submissionsList.addAll(mSubredditPaginator.next());
+            mSubredditViewModel.submissionsList.addAll(mSubredditPaginator.next());
+//            submissionsList.addAll(mSubredditPaginator.next());
             return "";
         }
         //
         @Override
         protected void onPostExecute(String result) {
 
-            if(submissionsList.size() > 0) {
+            subredditSwipeLayout.setRefreshing(false);
+            if(mSubredditViewModel.submissionsList.size() > 0) {
+//            if(submissionsList.size() > 0) {
                 subredditAdapter.notifyDataSetChanged();
             }
         }

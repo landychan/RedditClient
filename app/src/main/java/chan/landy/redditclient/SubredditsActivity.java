@@ -21,10 +21,10 @@ public class SubredditsActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.navigation_home:
                         return true;
-                    case R.id.navigation_dashboard:
+                    case R.id.navigation_subreddit_list:
                         return true;
-                    case R.id.navigation_notifications:
-                        return true;
+//                    case R.id.navigation_notifications:
+//                        return true;
                 }
                 return false;
             };
@@ -38,7 +38,7 @@ public class SubredditsActivity extends AppCompatActivity {
 
         SubredditsFragment subredditsFragment = new SubredditsFragment();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.subreddit_fragment_container, subredditsFragment);
+        ft.replace(R.id.fragment_container, subredditsFragment);
         ft.addToBackStack(null);
         ft.commit();
     }

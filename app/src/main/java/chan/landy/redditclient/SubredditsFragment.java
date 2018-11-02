@@ -59,6 +59,7 @@ public class SubredditsFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mSubredditViewModel = ViewModelProviders.of(getActivity()).get(SubredditDataViewModel.class);
 
         Log.d(TAG, "onCreate");
     }
@@ -74,7 +75,6 @@ public class SubredditsFragment extends Fragment {
 //        submissionsList = new ArrayList<>();
 
 
-        mSubredditViewModel = ViewModelProviders.of(this).get(SubredditDataViewModel.class);
         buildSubredditPaginator("");
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -176,6 +176,9 @@ public class SubredditsFragment extends Fragment {
             });
 
             postViewHolder.postLayout.setOnClickListener(v12 -> {
+                Submission sub = submissions.get(postViewHolder.getAdapterPosition());
+                mSubredditViewModel.selectedComment = sub.getId();
+
                 CommentsFragment commentsFragment = new CommentsFragment();
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
                 ft.replace(R.id.fragment_container, commentsFragment);

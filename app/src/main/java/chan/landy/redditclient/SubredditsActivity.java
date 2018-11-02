@@ -1,5 +1,6 @@
 package chan.landy.redditclient;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomNavigationView;
@@ -15,6 +16,7 @@ import butterknife.ButterKnife;
 public class SubredditsActivity extends AppCompatActivity {
 
     final String TAG = "SubredditsActivity";
+    private SubredditDataViewModel mSubredditViewModel;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
@@ -34,6 +36,7 @@ public class SubredditsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subreddits);
 //        ButterKnife.bind(this);
+        mSubredditViewModel = ViewModelProviders.of(this).get(SubredditDataViewModel.class);
 
 
         SubredditsFragment subredditsFragment = new SubredditsFragment();

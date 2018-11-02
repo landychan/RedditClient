@@ -33,4 +33,13 @@
         android:layout_below="@id/post_title"
         android:textSize="15sp"/>
 
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/post_upvotes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/post_subreddit"
+        android:layout_below="@id/post_title"
+        android:visibility="gone"
+        android:textSize="15sp"/>
+
 </RelativeLayout>

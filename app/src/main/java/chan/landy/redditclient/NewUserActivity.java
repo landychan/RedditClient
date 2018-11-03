@@ -75,7 +75,7 @@ public class NewUserActivity extends AppCompatActivity {
         // Generate an authentication URL
         boolean requestRefreshToken = true;
         boolean useMobileSite = true;
-        String[] scopes = new String[]{ "read", "identity" };
+        String[] scopes = new String[]{ "account", "edit", "flair", "history", "identity", "mysubreddits", "privatemessages", "read", "save", "submit", "subscribe", "vote", "wikiread" };
         String authUrl = helper.getAuthorizationUrl(requestRefreshToken, useMobileSite, scopes);
 
         // Finally, show the authorization URL to the user

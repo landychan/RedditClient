@@ -202,7 +202,6 @@ public class SubredditsFragment extends Fragment {
             String linkFlair = submission.getLinkFlairText();
 //            postViewHolder.postUpvotes = submission.getVote();
             postViewHolder.postHint = submission.getPostHint();
-            Log.d("Domain", submission.getDomain());
 
             if(submission.hasThumbnail()) {
                 postViewHolder.loadThumbnail(submission.getThumbnail());
@@ -267,7 +266,6 @@ public class SubredditsFragment extends Fragment {
         }
 
     }
-
 
     private void zoomImageFromThumb(final View thumbView, String uri) {
         // If there's an animation in progress, cancel it

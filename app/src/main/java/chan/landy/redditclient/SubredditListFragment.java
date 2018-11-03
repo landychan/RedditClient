@@ -20,6 +20,7 @@ import net.dean.jraw.pagination.BarebonesPaginator;
 import net.dean.jraw.pagination.Paginator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -101,10 +102,11 @@ public class SubredditListFragment extends Fragment {
             BarebonesPaginator<Subreddit> subreddits = App.redditClient.me().subreddits("subscriber")
                     .limit(Paginator.RECOMMENDED_MAX_LIMIT)
                     .build();
-            Log.d(TAG, "Auth mode: " + App.redditClient.getAuthMethod());
             for (Listing<Subreddit> page : subreddits) {
                 subList.addAll(page);
             }
+
+            Collections.sort(subList, (o1, o2) -> o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase()));
             return Observable.just(subList);
         });
     }

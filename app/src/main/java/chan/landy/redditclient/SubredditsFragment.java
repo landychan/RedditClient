@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -55,6 +56,7 @@ public class SubredditsFragment extends Fragment {
     private DefaultPaginator<Submission> mSubredditPaginator;
     private Animator mCurrentAnimator;
     private int mShortAnimationDuration;
+    private OnSubmissionClickedListener submissionClickedListener;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -116,6 +118,20 @@ public class SubredditsFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            submissionClickedListener = (OnSubmissionClickedListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement TextClicked");
+        }
+
+    }
 
     private void buildSubredditPaginator(String subreddit) {
         DefaultPaginator.Builder<Submission, SubredditSort> paginatorBuilder;
@@ -128,6 +144,11 @@ public class SubredditsFragment extends Fragment {
         mSubredditPaginator = paginatorBuilder.build();
 
     }
+
+    public interface OnSubmissionClickedListener {
+        void loadCommentsinFragment();
+    }
+
 
     public void loadSubreddit() {
 
@@ -178,12 +199,13 @@ public class SubredditsFragment extends Fragment {
             postViewHolder.postLayout.setOnClickListener(v12 -> {
                 Submission sub = submissions.get(postViewHolder.getAdapterPosition());
                 mSubredditViewModel.selectedComment = sub.getId();
+                submissionClickedListener.loadCommentsinFragment();
 
-                CommentsFragment commentsFragment = new CommentsFragment();
-                FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(R.id.fragment_container, commentsFragment);
-                ft.addToBackStack(null);
-                ft.commit();
+//                CommentsFragment commentsFragment = new CommentsFragment();
+//                FragmentTransaction ft = getFragmentManager().beginTransaction();
+//                ft.replace(R.id.fragment_container, commentsFragment);
+//                ft.addToBackStack(null);
+//                ft.commit();
             });
             return postViewHolder;
         }
@@ -203,9 +225,10 @@ public class SubredditsFragment extends Fragment {
 //            postViewHolder.postUpvotes = submission.getVote();
             postViewHolder.postHint = submission.getPostHint();
 
+            postViewHolder.postThumbnail.setVisibility(View.VISIBLE);
             if(submission.hasThumbnail()) {
                 postViewHolder.loadThumbnail(submission.getThumbnail());
-            } else {
+            } else if (postViewHolder.postHint.equals("self")) {
                 postViewHolder.postThumbnail.setVisibility(View.GONE);
             }
         }

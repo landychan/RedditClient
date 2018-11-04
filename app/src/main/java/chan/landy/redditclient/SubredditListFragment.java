@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import net.dean.jraw.models.Listing;
@@ -119,6 +121,12 @@ public class SubredditListFragment extends Fragment {
             View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_subreddit_list_item, viewGroup, false);
             ListViewHolder listViewHolder = new ListViewHolder(v);
 
+            listViewHolder.subredditLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
             return listViewHolder;
         }
 
@@ -137,8 +145,9 @@ public class SubredditListFragment extends Fragment {
 
     public class ListViewHolder extends RecyclerView.ViewHolder {
 
+        @BindView(R.id.subreddit_list_layout) RelativeLayout subredditLayout;
         @BindView(R.id.subreddit_list_title) TextView subredditTitle;
-        @BindView(R.id.subreddit_list_favicon) AppCompatImageButton subredditFavicon;
+        @BindView(R.id.subreddit_list_favicon) AppCompatButton subredditFavicon;
 
         public ListViewHolder(@NonNull View itemView) {
             super(itemView);

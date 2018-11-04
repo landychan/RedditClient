@@ -1,7 +1,6 @@
 package chan.landy.redditclient;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -17,7 +16,6 @@ import android.widget.TextView;
 
 import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.PublicContribution;
-import net.dean.jraw.models.Submission;
 import net.dean.jraw.references.SubmissionReference;
 import net.dean.jraw.tree.CommentNode;
 import net.dean.jraw.tree.RootCommentNode;
@@ -28,6 +26,11 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 import static android.graphics.drawable.ClipDrawable.HORIZONTAL;
 
@@ -37,9 +40,9 @@ public class CommentsFragment extends Fragment {
     @BindView(R.id.comments_recyclerview) RecyclerView commentsRecyclerView;
     CommentsAdapter commentsAdapter;
     private SubredditDataViewModel mSubredditViewModel;
-    private SubmissionReference mSubmissionReferene;
+    private SubmissionReference mSubmissionReference;
     private RootCommentNode rootCommentNode;
-
+    private final CompositeDisposable disposables = new CompositeDisposable();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,9 +67,6 @@ public class CommentsFragment extends Fragment {
         DividerItemDecoration itemDecor = new DividerItemDecoration(getContext(), HORIZONTAL);
         commentsRecyclerView.addItemDecoration(itemDecor);
 
-        mSubmissionReferene = App.redditClient.submission(mSubredditViewModel.selectedComment);
-
-        new LoadCommentsTask().execute("");
         return v;
 
     }
@@ -74,6 +74,40 @@ public class CommentsFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+    }
+
+    void getComments() {
+
+        mSubmissionReference = App.redditClient.submission(mSubredditViewModel.selectedComment);
+        disposables.add(getCommentsObservable()
+                // Run on a background thread
+                .subscribeOn(Schedulers.io())
+                // Be notified on the main thread
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<RootCommentNode>() {
+                    @Override public void onComplete() {
+                        Log.d(TAG, "onComplete()");
+                        commentsAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onNext(RootCommentNode rootCommentNode) {
+                        Log.d(TAG, "onNext()");
+                        commentsAdapter.comments = rootCommentNode.getReplies();
+                        commentsAdapter.it = rootCommentNode.walkTree().iterator();
+                    }
+
+                    @Override public void onError(Throwable e) {
+                        Log.e(TAG, "onError()", e);
+                    }
+                }));
+    }
+
+    Observable<RootCommentNode> getCommentsObservable() {
+        return Observable.defer(() -> {
+            rootCommentNode = mSubmissionReference.comments();
+            return Observable.just(rootCommentNode);
+        });
     }
 
     public class CommentsAdapter extends RecyclerView.Adapter<CommentsViewHolder> {
@@ -116,24 +150,4 @@ public class CommentsFragment extends Fragment {
         }
     }
 
-    private class LoadCommentsTask extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected String doInBackground(String ...param) {
-
-            rootCommentNode = mSubmissionReferene.comments();
-            return "";
-        }
-        //
-        @Override
-        protected void onPostExecute(String result) {
-
-            if(rootCommentNode.getReplies().size() > 0) {
-                commentsAdapter.comments = rootCommentNode.getReplies();
-                 commentsAdapter.it = rootCommentNode.walkTree().iterator();
-                commentsAdapter.notifyDataSetChanged();
-            }
-        }
-
-    }
 }

@@ -10,19 +10,22 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class SubredditsActivity extends AppCompatActivity {
+public class SubredditsActivity extends AppCompatActivity implements SubredditsFragment.OnSubmissionClickedListener {
 
     final String TAG = "SubredditsActivity";
-    private static final int NUM_PAGES = 2;
+    private static final int NUM_PAGES = 3;
     private SubredditDataViewModel mSubredditViewModel;
 
     private SubredditsFragment subredditsFragment;
     private SubredditListFragment subredditListFragment;
+    private CommentsFragment commentsFragment;
     private PagerAdapter fragmentAdapter;
+
     @BindView(R.id.fragment_container) ViewPager fragmentViewPager;
     @BindView(R.id.bottom_navigation) BottomNavigationView bottomNavigationView;
 
@@ -48,23 +51,18 @@ public class SubredditsActivity extends AppCompatActivity {
         bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         fragmentAdapter = new FragmentAdapter(getSupportFragmentManager());
+        fragmentViewPager.setOffscreenPageLimit(NUM_PAGES);
         fragmentViewPager.setAdapter(fragmentAdapter);
         fragmentViewPager.addOnPageChangeListener(new FragmentPageChangeListener());
-//        subredditsFragment = new SubredditsFragment();
-//        subredditListFragment = new SubredditListFragment();
-//        swapFragments(R.id.navigation_home);
-
     }
 
-
-    private void swapFragments(int itemId) {
-
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-
-
-        ft.addToBackStack(null);
-        ft.commit();
-
+    // Interface from SubredditsFragment
+    @Override
+    public void loadCommentsinFragment() {
+        if(!mSubredditViewModel.selectedComment.equals("")) {
+            commentsFragment.getComments();
+            fragmentViewPager.setCurrentItem(2, true);
+        }
     }
 
     private class FragmentPageChangeListener extends ViewPager.SimpleOnPageChangeListener {
@@ -72,6 +70,7 @@ public class SubredditsActivity extends AppCompatActivity {
         @Override
         public void onPageSelected(int position) {
             super.onPageSelected(position);
+            Log.d(TAG, "onPageSelected " + position);
             switch(position) {
                 case 0:
                     bottomNavigationView.setSelectedItemId(R.id.navigation_subreddit_list);
@@ -82,6 +81,19 @@ public class SubredditsActivity extends AppCompatActivity {
                 default:
                     break;
             }
+        }
+
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            Log.d(TAG, String.format("%s %s %s", position, positionOffset, positionOffsetPixels));
+
+            super.onPageScrolled(position, positionOffset, positionOffsetPixels);
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+            Log.d(TAG, "onPageScrollStateChanged " + state);
+            super.onPageScrollStateChanged(state);
         }
     }
 
@@ -100,11 +112,17 @@ public class SubredditsActivity extends AppCompatActivity {
                     }
                     return subredditListFragment;
                 case 1: //R.id.navigation_home:
-                default:
                     if(subredditsFragment == null) {
                         subredditsFragment = new SubredditsFragment();
                     }
                     return subredditsFragment;
+                case 2:
+                    if(commentsFragment == null) {
+                        commentsFragment = new CommentsFragment();
+                    }
+                    return commentsFragment;
+                default:
+                    return null;
             }
         }
 
@@ -114,4 +132,14 @@ public class SubredditsActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if(fragmentViewPager.getCurrentItem() == 2) {
+            fragmentViewPager.setCurrentItem(1, true);
+            commentsFragment.commentsAdapter.comments.clear();
+            commentsFragment.commentsAdapter.notifyDataSetChanged();
+        } else {
+            moveTaskToBack(true);
+        }
+    }
 }

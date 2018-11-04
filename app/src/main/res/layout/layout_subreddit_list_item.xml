@@ -3,17 +3,22 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_margin="@dimen/subreddit_list_vertical_margin"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
         android:id="@+id/subreddit_list_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:textSize="18sp"/>
 
     <android.support.v7.widget.AppCompatImageButton
         android:id="@+id/subreddit_list_favicon"
+        android:src="@drawable/ic_user"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintRight_toLeftOf="@id/subreddit_list_title"
         />
 

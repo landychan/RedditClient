@@ -2,36 +2,40 @@ package chan.landy.redditclient;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
-
-import java.util.concurrent.Callable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.observers.DisposableObserver;
-import io.reactivex.schedulers.Schedulers;
 
 public class SubredditsActivity extends AppCompatActivity {
 
     final String TAG = "SubredditsActivity";
+    private static final int NUM_PAGES = 2;
     private SubredditDataViewModel mSubredditViewModel;
 
     private SubredditsFragment subredditsFragment;
     private SubredditListFragment subredditListFragment;
+    private PagerAdapter fragmentAdapter;
+    @BindView(R.id.fragment_container) ViewPager fragmentViewPager;
     @BindView(R.id.bottom_navigation) BottomNavigationView bottomNavigationView;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
-                swapFragments(item.getItemId());
+        switch(item.getItemId()) {
+            case R.id.navigation_home:
+                fragmentViewPager.setCurrentItem(1, true);
+                break;
+            case R.id.navigation_subreddit_list:
+                fragmentViewPager.setCurrentItem(0, true);
+                break;
+        }
                 return true;
             };
 
@@ -43,9 +47,12 @@ public class SubredditsActivity extends AppCompatActivity {
         mSubredditViewModel = ViewModelProviders.of(this).get(SubredditDataViewModel.class);
         bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        subredditsFragment = new SubredditsFragment();
-        subredditListFragment = new SubredditListFragment();
-        swapFragments(R.id.navigation_home);
+        fragmentAdapter = new FragmentAdapter(getSupportFragmentManager());
+        fragmentViewPager.setAdapter(fragmentAdapter);
+        fragmentViewPager.addOnPageChangeListener(new FragmentPageChangeListener());
+//        subredditsFragment = new SubredditsFragment();
+//        subredditListFragment = new SubredditListFragment();
+//        swapFragments(R.id.navigation_home);
 
     }
 
@@ -53,25 +60,58 @@ public class SubredditsActivity extends AppCompatActivity {
     private void swapFragments(int itemId) {
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        switch (itemId) {
-            case R.id.navigation_subreddit_list:
-                if(subredditListFragment == null) {
-                    subredditListFragment = new SubredditListFragment();
-                }
-                ft.replace(R.id.fragment_container, subredditListFragment);
-                break;
-            case R.id.navigation_home:
-            default:
-                if(subredditsFragment == null) {
-                    subredditsFragment = new SubredditsFragment();
-                }
-                ft.replace(R.id.fragment_container, subredditsFragment);
-                break;
-        }
+
 
         ft.addToBackStack(null);
         ft.commit();
 
+    }
+
+    private class FragmentPageChangeListener extends ViewPager.SimpleOnPageChangeListener {
+
+        @Override
+        public void onPageSelected(int position) {
+            super.onPageSelected(position);
+            switch(position) {
+                case 0:
+                    bottomNavigationView.setSelectedItemId(R.id.navigation_subreddit_list);
+                    break;
+                case 1:
+                    bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    private class FragmentAdapter extends FragmentStatePagerAdapter {
+
+        public FragmentAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            switch (i) {
+                case 0: //R.id.navigation_subreddit_list:
+                    if(subredditListFragment == null) {
+                        subredditListFragment = new SubredditListFragment();
+                    }
+                    return subredditListFragment;
+                case 1: //R.id.navigation_home:
+                default:
+                    if(subredditsFragment == null) {
+                        subredditsFragment = new SubredditsFragment();
+                    }
+                    return subredditsFragment;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return NUM_PAGES;
+        }
     }
 
 }

@@ -7,6 +7,8 @@ import android.animation.ObjectAnimator;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.AsyncTask;
@@ -35,6 +37,7 @@ import com.squareup.picasso.Picasso;
 
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.models.SubredditSort;
+import net.dean.jraw.models.VoteDirection;
 import net.dean.jraw.pagination.DefaultPaginator;
 
 import java.util.ArrayList;
@@ -43,6 +46,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static android.graphics.drawable.ClipDrawable.HORIZONTAL;
+import static net.dean.jraw.models.VoteDirection.*;
 
 public class SubredditsFragment extends Fragment {
 
@@ -208,6 +212,9 @@ public class SubredditsFragment extends Fragment {
 //                ft.addToBackStack(null);
 //                ft.commit();
             });
+
+            postViewHolder.postUpvoteButton.setOnClickListener(postViewHolder.voteOnClickListener);
+            postViewHolder.postUpvotes.setOnClickListener(postViewHolder.voteOnClickListener);
             return postViewHolder;
         }
 
@@ -217,23 +224,27 @@ public class SubredditsFragment extends Fragment {
             Submission submission = submissions.get(i);
 
             String postTitle = String.format("%s (%s)", submission.getTitle(), submission.getDomain());
+            String linkFlair = submission.getLinkFlairText();
 
             postViewHolder.postTitle.setText(postTitle);
             postViewHolder.postSubreddit.setText(submission.getSubreddit());
             postViewHolder.dataUrl = submission.getUrl();
 
-            String linkFlair = submission.getLinkFlairText();
             postViewHolder.postHint = submission.getPostHint();
             postViewHolder.postUpvotes.setText(ClientUtils.numberToShortFormat(submission.getScore()));
             postViewHolder.postComments.setText(ClientUtils.numberToShortFormat(submission.getCommentCount()));
             postViewHolder.postTime.setText(ClientUtils.getTimeAgo(submission.getCreated().getTime()));
             postViewHolder.postThumbnail.setVisibility(View.VISIBLE);
+            postViewHolder.voteDirection = submission.getVote();
+
+            postViewHolder.updateVoteColor();
 
             if(submission.hasThumbnail()) {
                 postViewHolder.loadThumbnail(submission.getThumbnail());
             } else if (postViewHolder.postHint.equals("self")) {
                 postViewHolder.postThumbnail.setVisibility(View.GONE);
             }
+
         }
 
         @Override
@@ -259,10 +270,22 @@ public class SubredditsFragment extends Fragment {
         AppCompatImageView postThumbnail;
         String dataUrl;
         String postHint;
+        VoteDirection voteDirection = NONE;
+        View.OnClickListener voteOnClickListener;
 
         public PostViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+
+            voteOnClickListener = v -> {
+                if(voteDirection != NONE) {
+                    PostViewHolder.this.voteDirection = NONE;
+                } else {
+                    PostViewHolder.this.voteDirection = UP;
+                }
+                updateVoteColor();
+                
+            };
         }
 
         private void loadThumbnail(String url) {
@@ -272,6 +295,26 @@ public class SubredditsFragment extends Fragment {
 //                .error(R.drawable.user_placeholder_error)
                     .into(this.postThumbnail);
 
+        }
+
+        private void updateVoteColor() {
+            int newColor;
+
+            switch(this.voteDirection) {
+                case UP:
+                    newColor = Color.parseColor("#FF8b60");
+                    break;
+                case DOWN:
+                    newColor = Color.parseColor("#9494FF");
+                    break;
+                case NONE:
+                default:
+                    newColor = Color.parseColor("#C6C6C6");
+                    break;
+            }
+
+            this.postUpvoteButton.setColorFilter(newColor);
+            this.postUpvotes.setTextColor(newColor);
         }
     }
 

@@ -17,6 +17,7 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -222,10 +223,12 @@ public class SubredditsFragment extends Fragment {
             postViewHolder.dataUrl = submission.getUrl();
 
             String linkFlair = submission.getLinkFlairText();
-//            postViewHolder.postUpvotes = submission.getVote();
             postViewHolder.postHint = submission.getPostHint();
-
+            postViewHolder.postUpvotes.setText(ClientUtils.numberToShortFormat(submission.getScore()));
+            postViewHolder.postComments.setText(ClientUtils.numberToShortFormat(submission.getCommentCount()));
+            postViewHolder.postTime.setText(ClientUtils.getTimeAgo(submission.getCreated().getTime()));
             postViewHolder.postThumbnail.setVisibility(View.VISIBLE);
+
             if(submission.hasThumbnail()) {
                 postViewHolder.loadThumbnail(submission.getThumbnail());
             } else if (postViewHolder.postHint.equals("self")) {
@@ -246,8 +249,11 @@ public class SubredditsFragment extends Fragment {
 
         @BindView(R.id.post_layout) RelativeLayout postLayout;
         @BindView(R.id.post_title) TextView postTitle;
-        @BindView(R.id.post_subreddit) TextView postSubreddit;
-        @BindView(R.id.post_upvotes) TextView postUpvotes;
+        @BindView(R.id.post_subreddit_text) TextView postSubreddit;
+        @BindView(R.id.post_upvote_text) TextView postUpvotes;
+        @BindView(R.id.post_upvote_button) AppCompatImageButton postUpvoteButton;
+        @BindView(R.id.post_comments_text) TextView postComments;
+        @BindView(R.id.post_time_text) TextView postTime;
         //        @BindView(R.id.post_flair) TextView postFlair;
         @BindView(R.id.post_thumbnail)
         AppCompatImageView postThumbnail;

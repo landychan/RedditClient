@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:paddingTop="4dp"
     android:paddingBottom="4dp"
-    android:paddingLeft="@dimen/subreddit_list_vertical_margin"
+    android:paddingStart="@dimen/subreddit_list_vertical_margin"
     android:orientation="vertical"
     >
 
@@ -15,7 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:paddingLeft="8dp"
+        android:paddingStart="8dp"
         android:paddingEnd="4dp"
         android:src="@drawable/ic_home_black_24dp" />
 
@@ -27,21 +27,66 @@
         android:paddingEnd="4dp"
         android:textSize="18sp"/>
 
-    <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/post_subreddit"
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/post_thumbnail"
         android:layout_below="@id/post_title"
-        android:textSize="15sp"/>
+        android:layout_toEndOf="@id/post_thumbnail">
 
-    <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/post_upvotes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/post_subreddit"
-        android:layout_below="@id/post_title"
-        android:visibility="gone"
-        android:textSize="15sp"/>
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/post_subreddit_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title_subreddit_list"
+            android:textSize="15sp"/>
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/post_upvote_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/post_subreddit_text"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_upvote_arrow_18dp"
+            android:background="@null" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/post_upvote_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/post_upvote_button"
+            android:textSize="15sp"/>
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/post_comments_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/post_upvote_text"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_comment_icon_18dp"
+            android:background="@null" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/post_comments_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/post_comments_icon"
+            android:textSize="15sp"/>
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/post_time_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/post_comments_text"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_post_time_18dp"
+            android:background="@null" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/post_time_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/post_time_icon"
+            android:textSize="15sp"/>
+    </RelativeLayout>
 
 </RelativeLayout>

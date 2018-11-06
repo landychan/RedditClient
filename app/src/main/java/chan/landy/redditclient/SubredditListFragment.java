@@ -147,7 +147,7 @@ public class SubredditListFragment extends Fragment {
 
         @BindView(R.id.subreddit_list_layout) RelativeLayout subredditLayout;
         @BindView(R.id.subreddit_list_title) TextView subredditTitle;
-        @BindView(R.id.subreddit_list_favicon) AppCompatButton subredditFavicon;
+        @BindView(R.id.subreddit_list_favicon) AppCompatImageButton subredditFavicon;
 
         public ListViewHolder(@NonNull View itemView) {
             super(itemView);

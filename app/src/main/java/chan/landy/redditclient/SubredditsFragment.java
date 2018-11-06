@@ -252,8 +252,6 @@ public class SubredditsFragment extends Fragment {
             return submissions.size();
         }
 
-
-
     }
 
     class PostViewHolder extends RecyclerView.ViewHolder {
@@ -284,7 +282,7 @@ public class SubredditsFragment extends Fragment {
                     PostViewHolder.this.voteDirection = UP;
                 }
                 updateVoteColor();
-                
+
             };
         }
 

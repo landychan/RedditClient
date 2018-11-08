@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -37,6 +39,8 @@ import static android.graphics.drawable.ClipDrawable.HORIZONTAL;
 public class CommentsFragment extends Fragment {
 
     final String TAG = "CommentsFragment";
+    @BindView(R.id.comments_title) TextView commentsTitle;
+    @BindView(R.id.comments_image) AppCompatImageView commentsImage;
     @BindView(R.id.comments_recyclerview) RecyclerView commentsRecyclerView;
     CommentsAdapter commentsAdapter;
     private SubredditDataViewModel mSubredditViewModel;
@@ -129,7 +133,14 @@ public class CommentsFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull CommentsViewHolder commentsViewHolder, int i) {
-            commentsViewHolder.commentTextView.setText(it.next().getSubject().getBody());
+
+            CommentNode commentNode = it.next();
+            PublicContribution subject = commentNode.getSubject();
+            commentsViewHolder.commentUsername.setText(subject.getAuthor());
+            commentsViewHolder.commentUpvotes.setText(String.valueOf(subject.getScore()));
+//            commentsViewHolder.commentFlair.setText(subject.getGilded());
+            commentsViewHolder.commentTimestamp.setText(ClientUtils.getTimeAgo(subject.getCreated().getTime()));
+            commentsViewHolder.commentBody.setText(subject.getBody());
         }
 
         @Override
@@ -142,7 +153,11 @@ public class CommentsFragment extends Fragment {
     class CommentsViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.layout_comment_layout) ConstraintLayout commentLayout;
-        @BindView(R.id.comment_text) TextView commentTextView;
+        @BindView(R.id.comment_text) AppCompatTextView commentBody;
+        @BindView(R.id.comment_username) AppCompatTextView commentUsername;
+        @BindView(R.id.comment_upvotes) AppCompatTextView commentUpvotes;
+        @BindView(R.id.comment_flair) AppCompatTextView commentFlair;
+        @BindView(R.id.comment_timestamp) AppCompatTextView commentTimestamp;
 
         public CommentsViewHolder(View itemView) {
             super(itemView);

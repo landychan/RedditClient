@@ -16,7 +16,6 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:paddingStart="8dp"
-        android:paddingEnd="4dp"
         android:src="@drawable/ic_home_black_24dp" />
 
     <android.support.v7.widget.AppCompatTextView
@@ -24,6 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/post_thumbnail"
+        android:paddingStart="8dp"
         android:paddingEnd="4dp"
         android:textSize="18sp"/>
 
@@ -31,13 +31,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/post_title"
-        android:layout_toEndOf="@id/post_thumbnail">
+        android:layout_toEndOf="@id/post_thumbnail"
+        android:paddingStart="8dp"
+        android:paddingTop="4dp">
 
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/post_subreddit_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/title_subreddit_list"
+            android:paddingEnd="4dp"
             android:textSize="15sp"/>
 
         <android.support.v7.widget.AppCompatImageButton
@@ -47,6 +50,7 @@
             android:layout_toEndOf="@id/post_subreddit_text"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_upvote_arrow_18dp"
+            android:paddingEnd="4dp"
             android:background="@null" />
 
         <android.support.v7.widget.AppCompatTextView
@@ -54,6 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/post_upvote_button"
+            android:paddingEnd="4dp"
             android:textSize="15sp"/>
 
         <android.support.v7.widget.AppCompatImageButton
@@ -63,6 +68,7 @@
             android:layout_toEndOf="@id/post_upvote_text"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_comment_icon_18dp"
+            android:paddingEnd="4dp"
             android:background="@null" />
 
         <android.support.v7.widget.AppCompatTextView
@@ -70,6 +76,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/post_comments_icon"
+            android:paddingEnd="4dp"
             android:textSize="15sp"/>
 
         <android.support.v7.widget.AppCompatImageButton
@@ -79,6 +86,7 @@
             android:layout_toEndOf="@id/post_comments_text"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_post_time_18dp"
+            android:paddingEnd="4dp"
             android:background="@null" />
 
         <android.support.v7.widget.AppCompatTextView
@@ -86,6 +94,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/post_time_icon"
+            android:paddingEnd="4dp"
             android:textSize="15sp"/>
     </RelativeLayout>
 

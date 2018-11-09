@@ -3,6 +3,7 @@ package chan.landy.redditclient;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatImageView;
@@ -16,8 +17,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.PublicContribution;
+import net.dean.jraw.models.Submission;
 import net.dean.jraw.references.SubmissionReference;
 import net.dean.jraw.tree.CommentNode;
 import net.dean.jraw.tree.RootCommentNode;
@@ -25,6 +29,7 @@ import net.dean.jraw.tree.RootCommentNode;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,12 +44,11 @@ import static android.graphics.drawable.ClipDrawable.HORIZONTAL;
 public class CommentsFragment extends Fragment {
 
     final String TAG = "CommentsFragment";
-    @BindView(R.id.comments_title) TextView commentsTitle;
-    @BindView(R.id.comments_image) AppCompatImageView commentsImage;
     @BindView(R.id.comments_recyclerview) RecyclerView commentsRecyclerView;
     CommentsAdapter commentsAdapter;
     private SubredditDataViewModel mSubredditViewModel;
     private SubmissionReference mSubmissionReference;
+    private Submission mSubmission;
     private RootCommentNode rootCommentNode;
     private final CompositeDisposable disposables = new CompositeDisposable();
 
@@ -82,7 +86,8 @@ public class CommentsFragment extends Fragment {
 
     void getComments() {
 
-        mSubmissionReference = App.redditClient.submission(mSubredditViewModel.selectedComment);
+        mSubmissionReference = App.redditClient.submission(mSubredditViewModel.selectedSubmissionId);
+//        mSubmission = mSubmissionReference.inspect();
         disposables.add(getCommentsObservable()
                 // Run on a background thread
                 .subscribeOn(Schedulers.io())
@@ -110,6 +115,7 @@ public class CommentsFragment extends Fragment {
     Observable<RootCommentNode> getCommentsObservable() {
         return Observable.defer(() -> {
             rootCommentNode = mSubmissionReference.comments();
+            mSubmission = mSubmissionReference.inspect();
             return Observable.just(rootCommentNode);
         });
     }
@@ -123,35 +129,67 @@ public class CommentsFragment extends Fragment {
             this.comments = new ArrayList<>();
         }
 
-        @NonNull
         @Override
-        public CommentsViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            View v = View.inflate(getContext(), R.layout.layout_comment, null);
-            CommentsViewHolder commentsViewHolder = new CommentsViewHolder(v);
-            return commentsViewHolder;
+        public CommentsViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+
+            View v;
+            switch(viewType) {
+                case 1:
+                    v = View.inflate(getContext(), R.layout.layout_comment_title, null);
+                    break;
+                case 2:
+                default:
+                    v = View.inflate(getContext(), R.layout.layout_comment, null);
+                    break;
+            }
+
+            return new CommentsViewHolder(v);
         }
 
         @Override
         public void onBindViewHolder(@NonNull CommentsViewHolder commentsViewHolder, int i) {
 
-            CommentNode commentNode = it.next();
-            PublicContribution subject = commentNode.getSubject();
-            commentsViewHolder.commentUsername.setText(subject.getAuthor());
-            commentsViewHolder.commentUpvotes.setText(String.valueOf(subject.getScore()));
+            if(i == 0) {
+                commentsViewHolder.commentBody.setText(mSubmission.getTitle());
+                commentsViewHolder.commentUsername.setText(mSubmission.getAuthor());
+                commentsViewHolder.commentFlair.setText(mSubmission.getAuthorFlairText());
+                commentsViewHolder.commentUpvotes.setText(String.valueOf(mSubmission.getScore()));
+                commentsViewHolder.commentTimestamp.setText(ClientUtils.getTimeAgo(mSubmission.getCreated().getTime()));
+                if(Objects.equals(mSubmission.getPostHint(), "image")) {
+                    Picasso.get().load(mSubmission.getUrl()).into(commentsViewHolder.commentsImage);
+                    commentsViewHolder.commentsImage.setVisibility(View.VISIBLE);
+                }
+            } else {
+                CommentNode commentNode = it.next();
+                if (commentNode != null) {
+                    PublicContribution subject = commentNode.getSubject();
+                    commentsViewHolder.commentUsername.setText(subject.getAuthor());
+                    commentsViewHolder.commentUpvotes.setText(String.valueOf(subject.getScore()));
 //            commentsViewHolder.commentFlair.setText(subject.getGilded());
-            commentsViewHolder.commentTimestamp.setText(ClientUtils.getTimeAgo(subject.getCreated().getTime()));
-            commentsViewHolder.commentBody.setText(subject.getBody());
+                    commentsViewHolder.commentTimestamp.setText(ClientUtils.getTimeAgo(subject.getCreated().getTime()));
+                    commentsViewHolder.commentBody.setText(subject.getBody());
+                }
+            }
         }
 
         @Override
         public int getItemCount() {
             return commentsAdapter.comments.size();
         }
+
+        @Override
+        public int getItemViewType(int position) {
+            if (position == 0)
+                return 1;
+            else
+                return 2;
+        }
     }
 
 
     class CommentsViewHolder extends RecyclerView.ViewHolder {
 
+        @Nullable @BindView(R.id.comments_image) AppCompatImageView commentsImage;
         @BindView(R.id.layout_comment_layout) ConstraintLayout commentLayout;
         @BindView(R.id.comment_text) AppCompatTextView commentBody;
         @BindView(R.id.comment_username) AppCompatTextView commentUsername;

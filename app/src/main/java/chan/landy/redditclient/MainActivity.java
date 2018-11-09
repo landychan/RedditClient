@@ -165,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(String... usernames) {
             App.redditClient = App.getAccountHelper().switchToUser(usernames[0]);
+            App.redditClient.setAutoRenew(true);
             return null;
         }
 

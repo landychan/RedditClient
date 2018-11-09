@@ -12,7 +12,7 @@ public class SubredditDataViewModel extends ViewModel {
 
     public ArrayList<Submission> submissionsList;
     public ArrayList<Subreddit> subscribedList;
-    public String selectedComment;
+    public String selectedSubmissionId;
 
     public SubredditDataViewModel() {
 

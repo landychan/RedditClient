@@ -4,7 +4,7 @@
     android:id="@+id/subreddit_list_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/subreddit_list_vertical_margin"
+    android:padding="6dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView

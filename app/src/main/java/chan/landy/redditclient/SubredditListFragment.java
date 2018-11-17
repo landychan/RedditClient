@@ -1,10 +1,10 @@
 package chan.landy.redditclient;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -42,8 +42,11 @@ public class SubredditListFragment extends Fragment {
     private SubredditDataViewModel mSubredditViewModel;
     SubredditListAdapter subredditListAdapter;
     private final CompositeDisposable disposables = new CompositeDisposable();
+    private OnSubredditClickedListener subredditClickedListener;
 
-
+    public interface OnSubredditClickedListener {
+        void loadSubredditPosts(String subreddit);
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +56,17 @@ public class SubredditListFragment extends Fragment {
 
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        try {
+            subredditClickedListener = (OnSubredditClickedListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement OnSubredditClickedListener");
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -121,11 +135,11 @@ public class SubredditListFragment extends Fragment {
             View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_subreddit_list_item, viewGroup, false);
             ListViewHolder listViewHolder = new ListViewHolder(v);
 
-            listViewHolder.subredditLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+            listViewHolder.subredditLayout.setOnClickListener(v1 -> {
 
-                }
+                Subreddit subreddit = mSubredditViewModel.subscribedList.get(listViewHolder.getAdapterPosition());
+                subredditClickedListener.loadSubredditPosts(subreddit.getName());
+
             });
             return listViewHolder;
         }
@@ -135,6 +149,7 @@ public class SubredditListFragment extends Fragment {
             Subreddit subreddit = mSubredditViewModel.subscribedList.get(i);
 
             listViewHolder.subredditTitle.setText(subreddit.getName());
+            listViewHolder.subredditLink = subreddit.getName();
         }
 
         @Override
@@ -148,6 +163,7 @@ public class SubredditListFragment extends Fragment {
         @BindView(R.id.subreddit_list_layout) RelativeLayout subredditLayout;
         @BindView(R.id.subreddit_list_title) TextView subredditTitle;
         @BindView(R.id.subreddit_list_favicon) AppCompatImageButton subredditFavicon;
+        String subredditLink;
 
         public ListViewHolder(@NonNull View itemView) {
             super(itemView);

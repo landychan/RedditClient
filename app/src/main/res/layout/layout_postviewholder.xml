@@ -42,7 +42,7 @@
             android:text="@string/title_subreddit_list"
             android:paddingEnd="4dp"
             android:layout_centerVertical="true"
-            android:textSize="15sp"/>
+            android:textSize="18sp"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/post_upvote_button"
@@ -61,7 +61,7 @@
             android:layout_toEndOf="@id/post_upvote_button"
             android:layout_centerVertical="true"
             android:paddingEnd="4dp"
-            android:textSize="15sp"/>
+            android:textSize="18sp"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/post_comments_icon"
@@ -80,7 +80,7 @@
             android:layout_toEndOf="@id/post_comments_icon"
             android:layout_centerVertical="true"
             android:paddingEnd="4dp"
-            android:textSize="15sp"/>
+            android:textSize="18sp"/>
 
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/post_time_icon"
@@ -99,7 +99,7 @@
             android:layout_toEndOf="@id/post_time_icon"
             android:layout_centerVertical="true"
             android:paddingEnd="4dp"
-            android:textSize="15sp"/>
+            android:textSize="18sp"/>
     </RelativeLayout>
 
 </RelativeLayout>

@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -56,7 +57,7 @@ public class SubredditsFragment extends Fragment {
     SubredditViewAdapter subredditAdapter;
 //    ArrayList<Submission> submissionsList;
     private SubredditDataViewModel mSubredditViewModel;
-    private DefaultPaginator<Submission> mSubredditPaginator;
+    public DefaultPaginator<Submission> subredditPaginator;
     private Animator mCurrentAnimator;
     private int mShortAnimationDuration;
     private OnSubmissionClickedListener submissionClickedListener;
@@ -76,11 +77,6 @@ public class SubredditsFragment extends Fragment {
         Log.d(TAG, "onCreateView");
         View view = inflater.inflate(R.layout.fragment_subreddits, container, false);
         ButterKnife.bind(this, view);
-
-//        submissionsList = new ArrayList<>();
-
-
-        buildSubredditPaginator("");
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         subredditRecyclerView.setLayoutManager(layoutManager);
@@ -105,13 +101,17 @@ public class SubredditsFragment extends Fragment {
             if(!subredditSwipeLayout.isRefreshing()) {
                 mSubredditViewModel.submissionsList.clear();
 //                submissionsList.clear();
-                buildSubredditPaginator("");
+                ((SubredditsActivity)getActivity()).loadSubredditPosts("");
+
+//                buildSubredditPaginator("");
                 loadSubreddit();
             }
         });
 
         if(mSubredditViewModel.submissionsList.size() == 0) {
-            loadSubreddit();
+
+            ((SubredditsActivity)getActivity()).loadSubredditPosts("");
+//            loadSubreddit();
         }
 
         // Retrieve and cache the system's default "short" animation time.
@@ -131,20 +131,19 @@ public class SubredditsFragment extends Fragment {
             submissionClickedListener = (OnSubmissionClickedListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
-                    + " must implement TextClicked");
+                    + " must implement OnSubmissionClickedListener");
         }
-
     }
 
     private void buildSubredditPaginator(String subreddit) {
         DefaultPaginator.Builder<Submission, SubredditSort> paginatorBuilder;
         if(subreddit.length() == 0) {
-            paginatorBuilder = App.redditClient.frontPage();
+            paginatorBuilder = App.redditClient.frontPage().limit(50);
         } else {
             paginatorBuilder = App.redditClient.subreddit(subreddit).posts().limit(50);
         }
 
-        mSubredditPaginator = paginatorBuilder.build();
+        subredditPaginator = paginatorBuilder.build();
 
     }
 
@@ -154,7 +153,6 @@ public class SubredditsFragment extends Fragment {
 
 
     public void loadSubreddit() {
-
         subredditSwipeLayout.setRefreshing(true);
         new LoadSubredditTask().execute("", "", "");
     }
@@ -189,8 +187,11 @@ public class SubredditsFragment extends Fragment {
                     case "self":
                         break;
                     case "hosted:video":
-                        break;
                     case "rich:video":
+                        Intent videoIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(postViewHolder.dataUrl)   );
+
+                        videoIntent.setDataAndType(Uri.parse(postViewHolder.dataUrl), "video/mp4");
+                        startActivity(videoIntent);
                         break;
                     default:
                         // go to comments?
@@ -228,7 +229,7 @@ public class SubredditsFragment extends Fragment {
             postViewHolder.postSubreddit.setText(submission.getSubreddit());
             postViewHolder.dataUrl = submission.getUrl();
 
-            postViewHolder.postHint = submission.getPostHint();
+            postViewHolder.postHint = submission.getPostHint() != null ? submission.getPostHint() : "";
             postViewHolder.postUpvotes.setText(ClientUtils.numberToShortFormat(submission.getScore()));
             postViewHolder.postComments.setText(ClientUtils.numberToShortFormat(submission.getCommentCount()));
             postViewHolder.postTime.setText(ClientUtils.getTimeAgo(submission.getCreated().getTime()));
@@ -318,7 +319,7 @@ public class SubredditsFragment extends Fragment {
 
         @Override
         protected String doInBackground(String ...param) {
-            mSubredditViewModel.submissionsList.addAll(mSubredditPaginator.next());
+            mSubredditViewModel.submissionsList.addAll(subredditPaginator.next());
 //            submissionsList.addAll(mSubredditPaginator.next());
             return "";
         }

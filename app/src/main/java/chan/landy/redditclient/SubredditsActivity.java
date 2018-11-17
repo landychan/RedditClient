@@ -6,25 +6,30 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import net.dean.jraw.models.Submission;
+import net.dean.jraw.models.SubredditSort;
+import net.dean.jraw.pagination.DefaultPaginator;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class SubredditsActivity extends AppCompatActivity implements SubredditsFragment.OnSubmissionClickedListener {
+public class SubredditsActivity extends AppCompatActivity implements SubredditsFragment.OnSubmissionClickedListener, SubredditListFragment.OnSubredditClickedListener {
 
     final String TAG = "SubredditsActivity";
-    private static final int NUM_PAGES = 3;
+    private static final int MAX_NUM_PAGES= 3;
     private SubredditDataViewModel mSubredditViewModel;
 
     private SubredditsFragment subredditsFragment;
     private SubredditListFragment subredditListFragment;
     private CommentsFragment commentsFragment;
-    private PagerAdapter fragmentAdapter;
+    private FragmentAdapter fragmentAdapter;
 
     @BindView(R.id.fragment_container) ViewPager fragmentViewPager;
     @BindView(R.id.bottom_navigation) BottomNavigationView bottomNavigationView;
@@ -51,18 +56,40 @@ public class SubredditsActivity extends AppCompatActivity implements SubredditsF
         bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         fragmentAdapter = new FragmentAdapter(getSupportFragmentManager());
-        fragmentViewPager.setOffscreenPageLimit(NUM_PAGES);
         fragmentViewPager.setAdapter(fragmentAdapter);
+        initializeFragments(fragmentAdapter);
+        fragmentViewPager.setOffscreenPageLimit(MAX_NUM_PAGES);
         fragmentViewPager.addOnPageChangeListener(new FragmentPageChangeListener());
+
     }
 
     // Interface from SubredditsFragment
     @Override
     public void loadCommentsinFragment() {
-        if(!mSubredditViewModel.selectedComment.equals("")) {
+        if(!mSubredditViewModel.selectedSubmissionId.equals("")) {
+            if(!fragmentAdapter.fragmentList.contains(commentsFragment)) {
+                fragmentAdapter.addCommentsFragment();
+            }
             commentsFragment.getComments();
             fragmentViewPager.setCurrentItem(2, true);
         }
+    }
+
+    @Override
+    public void loadSubredditPosts(String subreddit) {
+        DefaultPaginator.Builder<Submission, SubredditSort> paginatorBuilder;
+        if(subreddit.length() == 0) {
+            paginatorBuilder = App.redditClient.frontPage().limit(50);
+        } else {
+            paginatorBuilder = App.redditClient.subreddit(subreddit).posts().limit(50);
+        }
+
+        subredditsFragment.subredditPaginator = paginatorBuilder.build();
+        subredditsFragment.subredditAdapter.submissions.clear();
+        subredditsFragment.subredditAdapter.notifyDataSetChanged();
+        subredditsFragment.loadSubreddit();
+        fragmentViewPager.setCurrentItem(1, true);
+
     }
 
     private class FragmentPageChangeListener extends ViewPager.SimpleOnPageChangeListener {
@@ -77,6 +104,9 @@ public class SubredditsActivity extends AppCompatActivity implements SubredditsF
                     break;
                 case 1:
                     bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+                    if(fragmentAdapter.getCount() == 3) {
+                        fragmentAdapter.removeCommentsFragment();
+                    }
                     break;
                 default:
                     break;
@@ -85,7 +115,7 @@ public class SubredditsActivity extends AppCompatActivity implements SubredditsF
 
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            Log.d(TAG, String.format("%s %s %s", position, positionOffset, positionOffsetPixels));
+//            Log.d(TAG, String.format("%s %s %s", position, positionOffset, positionOffsetPixels));
 
             super.onPageScrolled(position, positionOffset, positionOffsetPixels);
         }
@@ -99,36 +129,58 @@ public class SubredditsActivity extends AppCompatActivity implements SubredditsF
 
     private class FragmentAdapter extends FragmentStatePagerAdapter {
 
+        List<Fragment> fragmentList;
+
         public FragmentAdapter(FragmentManager fm) {
             super(fm);
+            fragmentList = new ArrayList<>();
         }
 
         @Override
         public Fragment getItem(int i) {
-            switch (i) {
-                case 0: //R.id.navigation_subreddit_list:
-                    if(subredditListFragment == null) {
-                        subredditListFragment = new SubredditListFragment();
-                    }
-                    return subredditListFragment;
-                case 1: //R.id.navigation_home:
-                    if(subredditsFragment == null) {
-                        subredditsFragment = new SubredditsFragment();
-                    }
-                    return subredditsFragment;
-                case 2:
-                    if(commentsFragment == null) {
-                        commentsFragment = new CommentsFragment();
-                    }
-                    return commentsFragment;
-                default:
-                    return null;
+            if(fragmentList.size() > i) {
+                return fragmentList.get(i);
+            } else {
+                return null;
             }
+//            switch (i) {
+//                case 0: //R.id.navigation_subreddit_list:
+//                    if(subredditListFragment == null) {
+//                        subredditListFragment = new SubredditListFragment();
+//                        fragmentList.add(subredditListFragment);
+//                    }
+//                    return subredditListFragment;
+//                case 1: //R.id.navigation_home:
+//                    if(subredditsFragment == null) {
+//                        subredditsFragment = new SubredditsFragment();
+//                        fragmentList.add(subredditsFragment);
+//                    }
+//                    return subredditsFragment;
+//                case 2:
+//                    if(commentsFragment == null) {
+//                        commentsFragment = new CommentsFragment();
+//                        fragmentList.add(commentsFragment);
+//                    }
+//
+//                    return commentsFragment;
+//                default:
+//                    return null;
+//            }
         }
 
         @Override
         public int getCount() {
-            return NUM_PAGES;
+            return this.fragmentList.size();
+        }
+
+        public void removeCommentsFragment() {
+            this.fragmentList.remove(commentsFragment);
+            this.notifyDataSetChanged();
+        }
+
+        public void addCommentsFragment() {
+            this.fragmentList.add(commentsFragment);
+            notifyDataSetChanged();
         }
     }
 
@@ -141,5 +193,22 @@ public class SubredditsActivity extends AppCompatActivity implements SubredditsF
         } else {
             moveTaskToBack(true);
         }
+    }
+
+    private void initializeFragments(FragmentAdapter adapter) {
+
+        if (subredditListFragment == null) {
+            subredditListFragment = new SubredditListFragment();
+            adapter.fragmentList.add(subredditListFragment);
+        }
+        if (subredditsFragment == null) {
+            subredditsFragment = new SubredditsFragment();
+            adapter.fragmentList.add(subredditsFragment);
+        }
+        if (commentsFragment == null) {
+            commentsFragment = new CommentsFragment();
+        }
+
+        adapter.notifyDataSetChanged();
     }
 }

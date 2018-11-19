@@ -15,8 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:paddingStart="8dp"
-        android:src="@drawable/ic_home_black_24dp" />
+        android:paddingStart="8dp" />
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/post_title"

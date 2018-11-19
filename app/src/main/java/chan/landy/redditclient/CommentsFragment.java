@@ -159,6 +159,8 @@ public class CommentsFragment extends Fragment {
                 if(Objects.equals(mSubmission.getPostHint(), "image")) {
                     Picasso.get().load(mSubmission.getUrl()).into(commentsViewHolder.commentsImage);
                     commentsViewHolder.commentsImage.setVisibility(View.VISIBLE);
+                } else {
+                    commentsViewHolder.commentsImage.setVisibility(View.GONE);
                 }
             } else {
                 CommentNode commentNode = it.next();

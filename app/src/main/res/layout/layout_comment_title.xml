@@ -37,11 +37,19 @@
             android:paddingStart="6dp"
             android:paddingEnd="6dp" />
 
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/comment_subreddit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/comment_username"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp" />
+
         <android.support.v7.widget.AppCompatImageButton
             android:id="@+id/comment_upvote_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/comment_username"
+            android:layout_toEndOf="@id/comment_subreddit"
             android:src="@drawable/ic_upvote_arrow_18dp"
             android:paddingEnd="2dp"
             android:background="@null" />

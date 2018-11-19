@@ -80,6 +80,7 @@ public class SubredditsActivity extends AppCompatActivity implements SubredditsF
         DefaultPaginator.Builder<Submission, SubredditSort> paginatorBuilder;
         if(subreddit.length() == 0) {
             paginatorBuilder = App.redditClient.frontPage().limit(50);
+            subreddit = "Front Page";
         } else {
             paginatorBuilder = App.redditClient.subreddit(subreddit).posts().limit(50);
         }
@@ -89,6 +90,7 @@ public class SubredditsActivity extends AppCompatActivity implements SubredditsF
         subredditsFragment.subredditAdapter.notifyDataSetChanged();
         subredditsFragment.loadSubreddit();
         fragmentViewPager.setCurrentItem(1, true);
+        SubredditsActivity.this.getSupportActionBar().setTitle(subreddit);
 
     }
 

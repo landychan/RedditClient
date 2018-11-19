@@ -152,6 +152,7 @@ public class CommentsFragment extends Fragment {
             if(i == 0) {
                 commentsViewHolder.commentBody.setText(mSubmission.getTitle());
                 commentsViewHolder.commentUsername.setText(mSubmission.getAuthor());
+                commentsViewHolder.commentSubreddit.setText(mSubmission.getSubreddit());
                 commentsViewHolder.commentFlair.setText(mSubmission.getAuthorFlairText());
                 commentsViewHolder.commentUpvotes.setText(String.valueOf(mSubmission.getScore()));
                 commentsViewHolder.commentTimestamp.setText(ClientUtils.getTimeAgo(mSubmission.getCreated().getTime()));
@@ -190,6 +191,7 @@ public class CommentsFragment extends Fragment {
     class CommentsViewHolder extends RecyclerView.ViewHolder {
 
         @Nullable @BindView(R.id.comments_image) AppCompatImageView commentsImage;
+        @Nullable @BindView(R.id.comment_subreddit) AppCompatTextView commentSubreddit;
         @BindView(R.id.layout_comment_layout) ConstraintLayout commentLayout;
         @BindView(R.id.comment_text) AppCompatTextView commentBody;
         @BindView(R.id.comment_username) AppCompatTextView commentUsername;

@@ -1,6 +1,8 @@
 package chan.landy.redditclient;
 
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -27,6 +29,7 @@ import net.dean.jraw.tree.CommentNode;
 import net.dean.jraw.tree.RootCommentNode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -51,11 +54,16 @@ public class CommentsFragment extends Fragment {
     private Submission mSubmission;
     private RootCommentNode rootCommentNode;
     private final CompositeDisposable disposables = new CompositeDisposable();
+    private ArrayList<CommentNode> currentComments;
+    private List<String> colors;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSubredditViewModel = ViewModelProviders.of(getActivity()).get(SubredditDataViewModel.class);
+        currentComments = new ArrayList<>();
+        Resources res = getResources();
+        colors = Arrays.asList(res.getStringArray(R.array.colors));
 
         Log.d(TAG, "onCreate");
     }
@@ -96,13 +104,17 @@ public class CommentsFragment extends Fragment {
                 .subscribeWith(new DisposableObserver<RootCommentNode>() {
                     @Override public void onComplete() {
                         Log.d(TAG, "onComplete()");
+                        currentComments.clear();
+                        while(commentsAdapter.it.hasNext()) {
+                            currentComments.add(commentsAdapter.it.next());
+                        }
                         commentsAdapter.notifyDataSetChanged();
                     }
 
                     @Override
                     public void onNext(RootCommentNode rootCommentNode) {
                         Log.d(TAG, "onNext()");
-                        commentsAdapter.comments = rootCommentNode.getReplies();
+//                        commentsAdapter.comments = rootCommentNode.getReplies();
                         commentsAdapter.it = rootCommentNode.walkTree().iterator();
                     }
 
@@ -163,7 +175,8 @@ public class CommentsFragment extends Fragment {
                     commentsViewHolder.commentsImage.setVisibility(View.GONE);
                 }
             } else {
-                CommentNode commentNode = it.next();
+
+                CommentNode commentNode = currentComments.get(i);
                 if (commentNode != null) {
                     PublicContribution subject = commentNode.getSubject();
                     commentsViewHolder.commentUsername.setText(subject.getAuthor());
@@ -171,13 +184,19 @@ public class CommentsFragment extends Fragment {
 //            commentsViewHolder.commentFlair.setText(subject.getGilded());
                     commentsViewHolder.commentTimestamp.setText(ClientUtils.getTimeAgo(subject.getCreated().getTime()));
                     commentsViewHolder.commentBody.setText(subject.getBody());
+                    commentsViewHolder.commentColor.setBackgroundColor(Color.parseColor(colors.get(i % colors.size())));
+
+                    ViewGroup.MarginLayoutParams testo = (ViewGroup.MarginLayoutParams) commentsViewHolder.commentLayout.getLayoutParams();
+
+                    if(testo != null)
+                        testo.setMargins(commentNode.getDepth()*30-30, testo.topMargin, testo.rightMargin, testo.bottomMargin);
                 }
             }
         }
 
         @Override
         public int getItemCount() {
-            return commentsAdapter.comments.size();
+            return rootCommentNode == null ? 0 : rootCommentNode.totalSize() + 1; //commentsAdapter.comments.size();
         }
 
         @Override
@@ -194,6 +213,7 @@ public class CommentsFragment extends Fragment {
 
         @Nullable @BindView(R.id.comments_image) AppCompatImageView commentsImage;
         @Nullable @BindView(R.id.comment_subreddit) AppCompatTextView commentSubreddit;
+        @Nullable @BindView(R.id.comment_color) View commentColor;
         @BindView(R.id.layout_comment_layout) ConstraintLayout commentLayout;
         @BindView(R.id.comment_text) AppCompatTextView commentBody;
         @BindView(R.id.comment_username) AppCompatTextView commentUsername;

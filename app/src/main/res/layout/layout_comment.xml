@@ -46,6 +46,12 @@
             android:layout_alignParentEnd="true" />
     </RelativeLayout>
 
+    <View
+        android:id="@+id/comment_color"
+        android:layout_width="5dp"
+        android:layout_height="match_parent"
+        app:layout_constraintRight_toLeftOf="@id/comment_info_layout" />
+
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/comment_text"
         android:layout_width="match_parent"

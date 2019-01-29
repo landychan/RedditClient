@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/post_layout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp"
+    android:paddingStart="@dimen/subreddit_list_vertical_margin"
+    android:orientation="vertical"
+    >
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/post_thumbnail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:paddingStart="8dp" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/post_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/post_thumbnail"
+        android:paddingStart="8dp"
+        android:paddingEnd="4dp"
+        android:textSize="18sp"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/post_title"
+        android:layout_toEndOf="@id/post_thumbnail"
+        android:paddingStart="8dp"
+        android:paddingTop="4dp">
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/post_subreddit_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title_subreddit_list"
+            android:paddingEnd="4dp"
+            android:layout_centerVertical="true"
+            android:textSize="18sp"/>
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/post_upvote_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/post_subreddit_text"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_upvote_arrow_18dp"
+            android:paddingEnd="4dp"
+            android:background="@null" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/post_upvote_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/post_upvote_button"
+            android:layout_centerVertical="true"
+            android:paddingEnd="4dp"
+            android:textSize="18sp"/>
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/post_comments_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/post_upvote_text"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_comment_icon_18dp"
+            android:paddingEnd="4dp"
+            android:background="@null" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/post_comments_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/post_comments_icon"
+            android:layout_centerVertical="true"
+            android:paddingEnd="4dp"
+            android:textSize="18sp"/>
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/post_time_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/post_comments_text"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_post_time_18dp"
+            android:paddingEnd="4dp"
+            android:background="@null" />
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/post_time_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/post_time_icon"
+            android:layout_centerVertical="true"
+            android:paddingEnd="4dp"
+            android:textSize="18sp"/>
+    </RelativeLayout>
+
+</RelativeLayout>
